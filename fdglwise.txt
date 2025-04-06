@@ -1,0 +1,875 @@
+CREATE OR REPLACE VIEW mfl_datalake_agg.vymo_fdglwise
+AS ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((( SELECT 'now'::text::date AS "date upload", derived_table1.display_fdgl AS fdgl, 'muthoot_GoldLoanPledge(Count)_a822lz16vq' AS "goal code", 'Gold Loan Pledge (Count)' AS "goal name", COALESCE(derived_table1.total_pledge, 0::bigint) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, sum(a.pledge_count) AS total_pledge
+           FROM mfl_datalake_agg.contract_pledge_ticket_size_3_years a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.contr_pld_brn_code::text = b.fdgl::text
+     WHERE a.date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table1
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table2.display_fdgl AS fdgl, 'muthoot_GoldLoanPledge(Count)_a822lz16vq' AS "goal code", 'Gold Loan Pledge (Count)' AS "goal name", COALESCE(derived_table2.total_pledge, 0::bigint) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, sum(a.pledge_count) AS total_pledge
+           FROM mfl_datalake_agg.contract_pledge_ticket_size_3_years a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.contr_pld_brn_code::text = b.fdgl::text
+     WHERE a.date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table2)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table3.display_fdgl AS fdgl, 'muthoot_GoldLoanPledge(Count)_a822lz16vq' AS "goal code", 'Gold Loan Pledge (Count)' AS "goal name", COALESCE(derived_table3.total_pledge, 0::bigint) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, sum(a.pledge_count) AS total_pledge
+           FROM mfl_datalake_agg.contract_pledge_ticket_size_3_years a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.contr_pld_brn_code::text = b.fdgl::text
+     WHERE a.date >= get_fiscal_year_start('now'::text::date) AND a.date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table3)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table4.display_fdgl AS fdgl, 'muthoot_GoldLoanPledge(Value)_951fnr9cl8' AS "goal code", 'Gold Loan Pledge (Value)' AS "goal name", COALESCE(derived_table4.total_pledge_value, 0::double precision) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, sum(a.pledge_value) AS total_pledge_value
+           FROM mfl_datalake_agg.contract_pledge_ticket_size_3_years a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.contr_pld_brn_code::text = b.fdgl::text
+     WHERE a.date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table4)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table5.display_fdgl AS fdgl, 'muthoot_GoldLoanPledge(Value)_951fnr9cl8' AS "goal code", 'Gold Loan Pledge (Value)' AS "goal name", COALESCE(derived_table5.total_pledge_value, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, sum(a.pledge_value) AS total_pledge_value
+           FROM mfl_datalake_agg.contract_pledge_ticket_size_3_years a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.contr_pld_brn_code::text = b.fdgl::text
+     WHERE a.date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table5)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table6.display_fdgl AS fdgl, 'muthoot_GoldLoanPledge(Value)_951fnr9cl8' AS "goal code", 'Gold Loan Pledge (Value)' AS "goal name", COALESCE(derived_table6.total_pledge_value, 0::double precision) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, sum(a.pledge_value) AS total_pledge_value
+           FROM mfl_datalake_agg.contract_pledge_ticket_size_3_years a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.contr_pld_brn_code::text = b.fdgl::text
+     WHERE a.date >= get_fiscal_year_start('now'::text::date) AND a.date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table6)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table7.display_fdgl AS fdgl, 'muthoot_MHGFreshorRenewal(Count)_p4s0c9p3i5' AS "goal code", 'MHG Fresh or Renewal (Count)' AS "goal name", COALESCE(derived_table7.trans_count, 0::bigint) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, count(DISTINCT a.trans_no) AS trans_count, sum(a.trans_amount) AS trans_amt
+           FROM mfl_datalake_sor.nbps_revenue_fy_2024_2025 a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.fdgl::text = b.fdgl::text
+     WHERE (a.product::text = 'MHG FRESH'::text OR a.product::text = 'MHG RENEWAL'::text) AND a.trans_date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table7)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table8.display_fdgl AS fdgl, 'muthoot_MHGFreshorRenewal(Count)_p4s0c9p3i5' AS "goal code", 'MHG Fresh or Renewal (Count)' AS "goal name", COALESCE(derived_table8.trans_count, 0::bigint) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, count(DISTINCT a.trans_no) AS trans_count, sum(a.trans_amount) AS trans_amt
+           FROM mfl_datalake_sor.nbps_revenue_fy_2024_2025 a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.fdgl::text = b.fdgl::text
+     WHERE (a.product::text = 'MHG FRESH'::text OR a.product::text = 'MHG RENEWAL'::text) AND a.trans_date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table8)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table9.display_fdgl AS fdgl, 'muthoot_MHGFreshorRenewal(Count)_p4s0c9p3i5' AS "goal code", 'MHG Fresh or Renewal (Count)' AS "goal name", COALESCE(derived_table9.trans_count, 0::bigint) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, count(DISTINCT a.trans_no) AS trans_count, sum(a.trans_amount) AS trans_amt
+           FROM mfl_datalake_sor.nbps_revenue_fy_2024_2025 a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.fdgl::text = b.fdgl::text
+     WHERE (a.product::text = 'MHG FRESH'::text OR a.product::text = 'MHG RENEWAL'::text) AND a.trans_date >= get_fiscal_year_start('now'::text::date) AND a.trans_date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table9)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table10.display_fdgl AS fdgl, 'muthoot_MHGFreshorRenewal(Value)_4j3awgkqp' AS "goal code", 'MHG Fresh or Renewal (Value)' AS "goal name", COALESCE(derived_table10.trans_amt, 0::double precision) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, count(DISTINCT a.trans_no) AS trans_count, sum(a.trans_amount) AS trans_amt
+           FROM mfl_datalake_sor.nbps_revenue_fy_2024_2025 a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.fdgl::text = b.fdgl::text
+     WHERE (a.product::text = 'MHG FRESH'::text OR a.product::text = 'MHG RENEWAL'::text) AND a.trans_date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table10)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table11.display_fdgl AS fdgl, 'muthoot_MHGFreshorRenewal(Value)_4j3awgkqp' AS "goal code", 'MHG Fresh or Renewal (Value)' AS "goal name", COALESCE(derived_table11.trans_amt, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, count(DISTINCT a.trans_no) AS trans_count, sum(a.trans_amount) AS trans_amt
+           FROM mfl_datalake_sor.nbps_revenue_fy_2024_2025 a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.fdgl::text = b.fdgl::text
+     WHERE (a.product::text = 'MHG FRESH'::text OR a.product::text = 'MHG RENEWAL'::text) AND a.trans_date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table11)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table12.display_fdgl AS fdgl, 'muthoot_MHGFreshorRenewal(Value)_4j3awgkqp' AS "goal code", 'MHG Fresh or Renewal (Value)' AS "goal name", COALESCE(derived_table12.trans_amt, 0::double precision) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, count(DISTINCT a.trans_no) AS trans_count, sum(a.trans_amount) AS trans_amt
+           FROM mfl_datalake_sor.nbps_revenue_fy_2024_2025 a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.fdgl::text = b.fdgl::text
+     WHERE (a.product::text = 'MHG FRESH'::text OR a.product::text = 'MHG RENEWAL'::text) AND a.trans_date >= get_fiscal_year_start('now'::text::date) AND a.trans_date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table12)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table13.display_fdgl AS fdgl, 'muthoot_MHGFreshorRenewal(Revenue)_35zimddeqb' AS "goal code", 'MHG Fresh or Renewal (Revenue)' AS "goal name", COALESCE(derived_table13.revenues, 0::double precision) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.revenue),0) AS revenues
+           FROM mfl_datalake_sor.nbps_revenue_fy_2024_2025 a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.fdgl::text = b.fdgl::text
+     WHERE (a.product::text = 'MHG FRESH'::text OR a.product::text = 'MHG RENEWAL'::text) AND a.trans_date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table13)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table14.display_fdgl AS fdgl, 'muthoot_MHGFreshorRenewal(Revenue)_35zimddeqb' AS "goal code", 'MHG Fresh or Renewal (Revenue)' AS "goal name", COALESCE(derived_table14.revenues, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.revenue),0) AS revenues
+           FROM mfl_datalake_sor.nbps_revenue_fy_2024_2025 a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.fdgl::text = b.fdgl::text
+     WHERE (a.product::text = 'MHG FRESH'::text OR a.product::text = 'MHG RENEWAL'::text) AND a.trans_date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table14)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table15.display_fdgl AS fdgl, 'muthoot_MHGFreshorRenewal(Revenue)_35zimddeqb' AS "goal code", 'MHG Fresh or Renewal (Revenue)' AS "goal name", COALESCE(derived_table15.revenues, 0::double precision) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.revenue),0) AS revenues
+           FROM mfl_datalake_sor.nbps_revenue_fy_2024_2025 a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.fdgl::text = b.fdgl::text
+     WHERE (a.product::text = 'MHG FRESH'::text OR a.product::text = 'MHG RENEWAL'::text) AND a.trans_date >= get_fiscal_year_start('now'::text::date) AND a.trans_date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table15)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table16.display_fdgl AS fdgl, 'muthoot_GL-ACB_7rxsh6vti8' AS "goal code", 'GL - ACB' AS "goal name", COALESCE(derived_table16.acb, 0::double precision) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS acb
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'Active Customers'::text AND a.value_type::text = 'Actual'::text AND a.date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table16)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table17.display_fdgl AS fdgl, 'muthoot_GL-AUM_f34n3arao' AS "goal code", 'GL - AUM' AS "goal name", COALESCE(derived_table17.aum, 0::double precision) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS aum
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'AUM'::text AND a.value_type::text = 'Actual'::text AND a.date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table17)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table18.display_fdgl AS fdgl, 'muthoot_MCSL-Two-wheeler(Count)_osduiftgrq' AS "goal code", 'MCSL- Two-wheeler (Count)' AS "goal name", COALESCE(derived_table18.mcsl_count, 0::double precision) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS mcsl_count
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'MCSL Sourcing-Count'::text AND a.value_type::text = 'Actual'::text AND a.date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table18)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table19.display_fdgl AS fdgl, 'muthoot_MCSL-Two-wheeler(Count)_osduiftgrq' AS "goal code", 'MCSL- Two-wheeler (Count)' AS "goal name", COALESCE(derived_table19.mcsl_count, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS mcsl_count
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'MCSL Sourcing-Count'::text AND a.value_type::text = 'Actual'::text AND a.date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table19)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table20.display_fdgl AS fdgl, 'muthoot_MCSL-Two-wheeler(Count)_osduiftgrq' AS "goal code", 'MCSL- Two-wheeler (Count)' AS "goal name", COALESCE(derived_table20.mcsl_count, 0::double precision) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS mcsl_count
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'MCSL Sourcing-Count'::text AND a.value_type::text = 'Actual'::text AND a.date >= get_fiscal_year_start('now'::text::date) AND a.date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table20)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table21.display_fdgl AS fdgl, 'muthoot_MCSL-Two-wheeler(Value)_lwdm7j6mg5' AS "goal code", 'MCSL- Two-wheeler (Value)' AS "goal name", COALESCE(derived_table21.mcsl_value, 0::double precision) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS mcsl_value
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'MCSL Sourcing-Amount'::text AND a.value_type::text = 'Actual'::text AND a.date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table21)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table22.display_fdgl AS fdgl, 'muthoot_MCSL-Two-wheeler(Value)_lwdm7j6mg5' AS "goal code", 'MCSL- Two-wheeler (Value)' AS "goal name", COALESCE(derived_table22.mcsl_value, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS mcsl_value
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'MCSL Sourcing-Amount'::text AND a.value_type::text = 'Actual'::text AND a.date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table22)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table23.display_fdgl AS fdgl, 'muthoot_MCSL-Two-wheeler(Value)_lwdm7j6mg5' AS "goal code", 'MCSL- Two-wheeler (Value)' AS "goal name", COALESCE(derived_table23.mcsl_value, 0::double precision) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS mcsl_value
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'MCSL Sourcing-Amount'::text AND a.value_type::text = 'Actual'::text AND a.date >= get_fiscal_year_start('now'::text::date) AND a.date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table23)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table24.display_fdgl AS fdgl, 'muthoot_MCSL-Two-wheeler(Revenue)_hq0d1otwbk' AS "goal code", 'MCSL- Two-wheeler (Revenue)' AS "goal name", COALESCE(derived_table24.mcsl_revenue, 0::double precision) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS mcsl_revenue
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'MCSL Sourcing-Revenue'::text AND a.value_type::text = 'Actual'::text AND a.date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table24)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table25.display_fdgl AS fdgl, 'muthoot_MCSL-Two-wheeler(Revenue)_hq0d1otwbk' AS "goal code", 'MCSL- Two-wheeler (Revenue)' AS "goal name", COALESCE(derived_table25.mcsl_revenue, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS mcsl_revenue
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT  JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'MCSL Sourcing-Revenue'::text AND a.value_type::text = 'Actual'::text AND a.date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table25)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table26.display_fdgl AS fdgl, 'muthoot_MCSL-Two-wheeler(Revenue)_hq0d1otwbk' AS "goal code", 'MCSL- Two-wheeler (Revenue)' AS "goal name", COALESCE(derived_table26.mcsl_revenue, 0::double precision) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS mcsl_revenue
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'MCSL Sourcing-Revenue'::text AND a.value_type::text = 'Actual'::text AND a.date >= get_fiscal_year_start('now'::text::date) AND a.date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table26)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table27.display_fdgl AS fdgl, 'muthoot_LIorDSorJS(Count)_i7olj085w' AS "goal code", 'LI or DS or JS (Count)' AS "goal name", COALESCE(derived_table27.li_count, 0::double precision) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS li_count
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE (a.kpi::text = 'Life-Insurance-Count'::text OR a.kpi::text = 'Dhan Suraksha-Count'::text OR a.kpi::text = 'Jeevan Suraksha-Count'::text) AND a.value_type::text = 'Actual'::text AND a.date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table27)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table28.display_fdgl AS fdgl, 'muthoot_LIorDSorJS(Count)_i7olj085w' AS "goal code", 'LI or DS or JS (Count)' AS "goal name", COALESCE(derived_table28.li_count, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS li_count
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE (a.kpi::text = 'Life-Insurance-Count'::text OR a.kpi::text = 'Dhan Suraksha-Count'::text OR a.kpi::text = 'Jeevan Suraksha-Count'::text) AND a.value_type::text = 'Actual'::text AND a.date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table28)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table29.display_fdgl AS fdgl, 'muthoot_LIorDSorJS(Count)_i7olj085w' AS "goal code", 'LI or DS or JS (Count)' AS "goal name", COALESCE(derived_table29.li_count, 0::double precision) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS li_count
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE (a.kpi::text = 'Life-Insurance-Count'::text OR a.kpi::text = 'Dhan Suraksha-Count'::text OR a.kpi::text = 'Jeevan Suraksha-Count'::text) AND a.value_type::text = 'Actual'::text AND a.date >= get_fiscal_year_start('now'::text::date) AND a.date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table29)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table30.display_fdgl AS fdgl, 'muthoot_LIorDSorJS(Value)_w4abmnnt0s' AS "goal code", 'LI or DS or JS (Value)' AS "goal name", COALESCE(derived_table30.li_amount, 0::double precision) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS li_amount
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE (a.kpi::text = 'Life-Insurance-Amount'::text OR a.kpi::text = 'Dhan Suraksha-Amount'::text OR a.kpi::text = 'Jeevan Suraksha-Amount'::text) AND a.value_type::text = 'Actual'::text AND a.date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table30)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table31.display_fdgl AS fdgl, 'muthoot_LIorDSorJS(Value)_w4abmnnt0s' AS "goal code", 'LI or DS or JS (Value)' AS "goal name", COALESCE(derived_table31.li_amount, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS li_amount
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE (a.kpi::text = 'Life-Insurance-Amount'::text OR a.kpi::text = 'Dhan Suraksha-Amount'::text OR a.kpi::text = 'Jeevan Suraksha-Amount'::text) AND a.value_type::text = 'Actual'::text AND a.date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table31)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table32.display_fdgl AS fdgl, 'muthoot_LIorDSorJS(Value)_w4abmnnt0s' AS "goal code", 'LI or DS or JS (Value)' AS "goal name", COALESCE(derived_table32.li_amount, 0::double precision) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS li_amount
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE (a.kpi::text = 'Life-Insurance-Amount'::text OR a.kpi::text = 'Dhan Suraksha-Amount'::text OR a.kpi::text = 'Jeevan Suraksha-Amount'::text) AND a.value_type::text = 'Actual'::text AND a.date >= get_fiscal_year_start('now'::text::date) AND a.date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table32)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table33.display_fdgl AS fdgl, 'muthoot_LIorDSorJS(Revenue)_6fll7zt8lr' AS "goal code", 'LI or DS or JS (Revenue)' AS "goal name", COALESCE(derived_table33.li_revenue, 0::double precision) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS li_revenue
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE (a.kpi::text = 'Dhan Suraksha-Revenue'::text OR a.kpi::text = 'Life-Insurance-Revenue'::text OR a.kpi::text = 'Jeevan Suraksha-Revenue'::text) AND a.value_type::text = 'Actual'::text AND a.date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table33)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table34.display_fdgl AS fdgl, 'muthoot_LIorDSorJS(Revenue)_6fll7zt8lr' AS "goal code", 'LI or DS or JS (Revenue)' AS "goal name", COALESCE(derived_table34.li_revenue, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS li_revenue
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE (a.kpi::text = 'Dhan Suraksha-Revenue'::text OR a.kpi::text = 'Life-Insurance-Revenue'::text OR a.kpi::text = 'Jeevan Suraksha-Revenue'::text) AND a.value_type::text = 'Actual'::text AND a.date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table34)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table35.display_fdgl AS fdgl, 'muthoot_LIorDSorJS(Revenue)_6fll7zt8lr' AS "goal code", 'LI or DS or JS (Revenue)' AS "goal name", COALESCE(derived_table35.li_revenue, 0::double precision) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS li_revenue
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE (a.kpi::text = 'Dhan Suraksha-Revenue'::text OR a.kpi::text = 'Life-Insurance-Revenue'::text OR a.kpi::text = 'Jeevan Suraksha-Revenue'::text) AND a.value_type::text = 'Actual'::text AND a.date >= get_fiscal_year_start('now'::text::date) AND a.date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table35)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table36.display_fdgl AS fdgl, 'muthoot_ESwarna(Grams)_6ljxa77sc' AS "goal code", 'ESwarna (Grams)' AS "goal name", COALESCE(derived_table36.eswarna_gms, 0::double precision) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS eswarna_gms
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'Eswarna-Weight'::text AND a.value_type::text = 'Actual'::text AND a.date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table36)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table37.display_fdgl AS fdgl, 'muthoot_ESwarna(Grams)_6ljxa77sc' AS "goal code", 'ESwarna (Grams)' AS "goal name", COALESCE(derived_table37.eswarna_gms, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS eswarna_gms
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'Eswarna-Weight'::text AND a.value_type::text = 'Actual'::text AND a.date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table37)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table38.display_fdgl AS fdgl, 'muthoot_ESwarna(Grams)_6ljxa77sc' AS "goal code", 'ESwarna (Grams)' AS "goal name", COALESCE(derived_table38.eswarna_gms, 0::double precision) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS eswarna_gms
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'Eswarna-Weight'::text AND a.value_type::text = 'Actual'::text AND a.date >= get_fiscal_year_start('now'::text::date) AND a.date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table38)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table39.display_fdgl AS fdgl, 'muthoot_ESwarna(Revenue)_m4ddncyx03' AS "goal code", 'ESwarna (Revenue)' AS "goal name", COALESCE(derived_table39.eswarna_revenue, 0::double precision) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS eswarna_revenue
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'Eswarna-Revenue'::text AND a.value_type::text = 'Actual'::text AND a.date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table39)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table40.display_fdgl AS fdgl, 'muthoot_ESwarna(Revenue)_m4ddncyx03' AS "goal code", 'ESwarna (Revenue)' AS "goal name", COALESCE(derived_table40.eswarna_revenue, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS eswarna_revenue
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'Eswarna-Revenue'::text AND a.value_type::text = 'Actual'::text AND a.date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table40)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table41.display_fdgl AS fdgl, 'muthoot_ESwarna(Revenue)_m4ddncyx03' AS "goal code", 'ESwarna (Revenue)' AS "goal name", COALESCE(derived_table41.eswarna_revenue, 0::double precision) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS eswarna_revenue
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'Eswarna-Revenue'::text AND a.value_type::text = 'Actual'::text AND a.date >= get_fiscal_year_start('now'::text::date) AND a.date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table41)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table42.display_fdgl AS fdgl, 'muthoot_Swarnavarsham(Grams)_hofyu8mhbb' AS "goal code", 'Swarnavarsham (Grams)' AS "goal name", COALESCE(derived_table42.swar_grams, 0::double precision) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS swar_grams
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE (a.kpi::text = 'SWJ-Jewellery-Weight'::text OR a.kpi::text = 'SWJ-Coin-Weight'::text) AND a.value_type::text = 'Actual'::text AND a.date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table42)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table43.display_fdgl AS fdgl, 'muthoot_Swarnavarsham(Grams)_hofyu8mhbb' AS "goal code", 'Swarnavarsham (Grams)' AS "goal name", COALESCE(derived_table43.swar_grams, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS swar_grams
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE (a.kpi::text = 'SWJ-Jewellery-Weight'::text OR a.kpi::text = 'SWJ-Coin-Weight'::text) AND a.value_type::text = 'Actual'::text AND a.date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table43)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table44.display_fdgl AS fdgl, 'muthoot_Swarnavarsham(Grams)_hofyu8mhbb' AS "goal code", 'Swarnavarsham (Grams)' AS "goal name", COALESCE(derived_table44.swar_grams, 0::double precision) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS swar_grams
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE (a.kpi::text = 'SWJ-Jewellery-Weight'::text OR a.kpi::text = 'SWJ-Coin-Weight'::text) AND a.value_type::text = 'Actual'::text AND a.date >= get_fiscal_year_start('now'::text::date) AND a.date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table44)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table45.display_fdgl AS fdgl, 'muthoot_Swarnavarsham(Revenue)_0xmuredqj' AS "goal code", 'Swarnavarsham (Revenue)' AS "goal name", COALESCE(derived_table45.swar_revenue, 0::double precision) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS swar_revenue
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE (a.kpi::text = 'SWJ-Coin-Revenue'::text OR a.kpi::text = 'SWJ-Jewellery-Revenue'::text) AND a.value_type::text = 'Actual'::text AND a.date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table45)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table46.display_fdgl AS fdgl, 'muthoot_Swarnavarsham(Revenue)_0xmuredqj' AS "goal code", 'Swarnavarsham (Revenue)' AS "goal name", COALESCE(derived_table46.swar_revenue, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS swar_revenue
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE (a.kpi::text = 'SWJ-Coin-Revenue'::text OR a.kpi::text = 'SWJ-Jewellery-Revenue'::text) AND a.value_type::text = 'Actual'::text AND a.date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table46)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table47.display_fdgl AS fdgl, 'muthoot_Swarnavarsham(Revenue)_0xmuredqj' AS "goal code", 'Swarnavarsham (Revenue)' AS "goal name", COALESCE(derived_table47.swar_revenue, 0::double precision) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS swar_revenue
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE (a.kpi::text = 'SWJ-Coin-Revenue'::text OR a.kpi::text = 'SWJ-Jewellery-Revenue'::text) AND a.value_type::text = 'Actual'::text AND a.date >= get_fiscal_year_start('now'::text::date) AND a.date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table47)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table48.display_fdgl AS fdgl, 'muthoot_DisbursementCount-VyaparMitra_n56oq46vv8' AS "goal code", 'Disbursement Count - Vyapar Mitra' AS "goal name", COALESCE(derived_table48.vyapar_count, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS vyapar_count
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'Disbursal Value_NH Loans count'::text AND a.value_type::text = 'Actual'::text AND a.date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table48)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table49.display_fdgl AS fdgl, 'muthoot_DisbursementCount-VyaparMitra_n56oq46vv8' AS "goal code", 'Disbursement Count - Vyapar Mitra' AS "goal name", COALESCE(derived_table49.vyapar_count, 0::double precision) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS vyapar_count
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'Disbursal Value_NH Loans count'::text AND a.value_type::text = 'Actual'::text AND a.date >= get_fiscal_year_start('now'::text::date) AND a.date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table49)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table50.display_fdgl AS fdgl, 'muthoot_DisbursementValue-VyaparMitra_ddp4bo1zb' AS "goal code", 'Disbursement Value - Vyapar Mitra' AS "goal name", COALESCE(derived_table50.vyapar_amt, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS vyapar_amt
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'Disbursal Value_NH Loans'::text AND a.value_type::text = 'Actual'::text AND a.date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table50)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table51.display_fdgl AS fdgl, 'muthoot_DisbursementValue-VyaparMitra_ddp4bo1zb' AS "goal code", 'Disbursement Value - Vyapar Mitra' AS "goal name", COALESCE(derived_table51.vyapar_amt, 0::double precision) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.value),0) AS vyapar_amt
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'Disbursal Value_NH Loans'::text AND a.value_type::text = 'Actual'::text AND a.date >= get_fiscal_year_start('now'::text::date) AND a.date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table51)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table52.display_fdgl AS fdgl, 'muthoot_NBPSRevenue_df6sdqet5i' AS "goal code", 'NBPS Revenue' AS "goal name", COALESCE(derived_table52.nbps_revenue, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.revenue),0) AS nbps_revenue
+           FROM mfl_datalake_sor.nbps_revenue_fy_2024_2025 a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.fdgl::text = b.fdgl::text
+     WHERE a.trans_date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table52)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table53.display_fdgl AS fdgl, 'muthoot_NCA(GL)Count_2k02pvd9h' AS "goal code", 'NCA(GL) Count' AS "goal name", COALESCE(derived_table53.total_nca, 0::bigint) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(coalesce(count(DISTINCT a.cust_pr_ln_no),0),0) AS total_nca
+           FROM mfl_datalake_sor.customer_party_relationship a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.cust_pr_brn_code::text = b.fdgl::text
+     WHERE a.cust_pr_first_relsp_dt >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table53)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table54.display_fdgl AS fdgl, 'muthoot_NCAGLValueof1stNCA_a0boixi4qd' AS "goal code", 'NCA GL Value of 1st NCA' AS "goal name", COALESCE(derived_table54.nca_value, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.cust_pr_ln_amt),0) AS nca_value
+           FROM mfl_datalake_sor.customer_party_relationship a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.cust_pr_brn_code::text = b.fdgl::text
+     WHERE a.cust_pr_first_relsp_dt >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table54)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table55.display_fdgl AS fdgl, 'muthoot_VMdelinquency(30+Count)_owj8etsrsa' AS "goal code", 'VM delinquency (30+ Count)' AS "goal name", COALESCE(derived_table55.vm_count_30, 0::bigint) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(count(DISTINCT a.loan_account_no),0) AS vm_count_30
+           FROM mfl_datalake_agg.vyapar_collections a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.branch_fdgl_code::text = b.fdgl::text
+     WHERE a.days_past_due::integer > 30 AND a.mis_date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table55)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table56.display_fdgl AS fdgl, 'muthoot_VMdelinquency(30+Value)_rc69z7vwwf' AS "goal code", 'VM delinquency (30+ Value)' AS "goal name", COALESCE(derived_table56.vm_value_30, 0::numeric) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.principal_balance),0) AS vm_value_30
+           FROM mfl_datalake_agg.vyapar_collections a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.branch_fdgl_code::text = b.fdgl::text
+     WHERE a.days_past_due::integer > 30 AND a.mis_date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table56)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table57.display_fdgl AS fdgl, 'muthoot_VMdelinquency(90+Count)_sqnawqa6kk' AS "goal code", 'VM delinquency (90+ Count)' AS "goal name", COALESCE(derived_table57.vm_count_90, 0::bigint) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(count(DISTINCT a.loan_account_no),0) AS vm_count_90
+           FROM mfl_datalake_agg.vyapar_collections a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.branch_fdgl_code::text = b.fdgl::text
+     WHERE a.days_past_due::integer > 90 AND a.mis_date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table57)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table58.display_fdgl AS fdgl, 'muthoot_VMdelinquency(90+Value)_mh74rjwjr' AS "goal code", 'VM delinquency (90+ Value)' AS "goal name", COALESCE(derived_table58.vm_value_90, 0::numeric) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(sum(a.principal_balance),0) AS vm_value_90
+           FROM mfl_datalake_agg.vyapar_collections a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.branch_fdgl_code::text = b.fdgl::text
+     WHERE a.days_past_due::integer > 90 AND a.mis_date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table58)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table59.display_fdgl AS fdgl, 'muthoot_Digitaltransactions_12o884sfrh' AS "goal code", 'Digital transactions' AS "goal name", COALESCE(derived_table59.digital_trans, 0::double precision) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS digital_trans
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'Digital-Transactions'::text AND a.value_type::text = 'Actual'::text AND a.date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table59)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table60.display_fdgl AS fdgl, 'muthoot_Digitaltransactions_12o884sfrh' AS "goal code", 'Digital transactions' AS "goal name", COALESCE(derived_table60.digital_trans, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS digital_trans
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'Digital-Transactions'::text AND a.value_type::text = 'Actual'::text AND a.date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table60)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table61.display_fdgl AS fdgl, 'muthoot_Digitaltransactions_12o884sfrh' AS "goal code", 'Digital transactions' AS "goal name", COALESCE(derived_table61.digital_trans, 0::double precision) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS digital_trans
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'Digital-Transactions'::text AND a.value_type::text = 'Actual'::text AND a.date >= get_fiscal_year_start('now'::text::date) AND a.date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table61)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table62.display_fdgl AS fdgl, 'muthoot_GLInterestcollection_zokrcngee' AS "goal code", 'GL Interest collection' AS "goal name", COALESCE(derived_table62.int_collection, 0::double precision) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS int_collection
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'Interest Collection - GL'::text AND a.value_type::text = 'Actual'::text AND a.date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table62)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table63.display_fdgl AS fdgl, 'muthoot_GLInterestcollection_zokrcngee' AS "goal code", 'GL Interest collection' AS "goal name", COALESCE(derived_table63.int_collection, 0::double precision) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS int_collection
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'Interest Collection - GL'::text AND a.value_type::text = 'Actual'::text AND a.date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table63)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table64.display_fdgl AS fdgl, 'muthoot_GLInterestcollection_zokrcngee' AS "goal code", 'GL Interest collection' AS "goal name", COALESCE(derived_table64.int_collection, 0::double precision) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Currency' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl,coalesce(sum(a.value),0) AS int_collection
+           FROM mfl_datalake_agg.superset_actual_vs_target_prdct_rpt a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.brn_code::text = b.fdgl::text
+     WHERE a.kpi::text = 'Interest Collection - GL'::text AND a.value_type::text = 'Actual'::text AND a.date >= get_fiscal_year_start('now'::text::date) AND a.date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table64)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table65.display_fdgl AS fdgl, 'muthoot_ESPvisitbyBM,AM,RMorZH_3e4ukk9ayn' AS "goal code", 'ESP visit by BM, AM, RM or ZH' AS "goal name", COALESCE(derived_table65.visit_count, 0::bigint) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(count(DISTINCT a.partnerlistingno),0) AS visit_count
+           FROM mfl_datalake_stg.tblecopartnertracker a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.fdgl::text = b.fdgl::text
+     WHERE a.savedon = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table65)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table66.display_fdgl AS fdgl, 'muthoot_ESPvisitbyBM,AM,RMorZH_3e4ukk9ayn' AS "goal code", 'ESP visit by BM, AM, RM or ZH' AS "goal name", COALESCE(derived_table66.visit_count, 0::bigint) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(count(DISTINCT a.partnerlistingno),0) AS visit_count
+           FROM mfl_datalake_stg.tblecopartnertracker a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.fdgl::text = b.fdgl::text
+     WHERE a.savedon >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table66)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table67.display_fdgl AS fdgl, 'muthoot_ESPvisitbyBM,AM,RMorZH_3e4ukk9ayn' AS "goal code", 'ESP visit by BM, AM, RM or ZH' AS "goal name", COALESCE(derived_table67.visit_count, 0::bigint) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(count(DISTINCT a.partnerlistingno),0) AS visit_count
+           FROM mfl_datalake_stg.tblecopartnertracker a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.fdgl::text = b.fdgl::text
+     WHERE a.savedon >= get_fiscal_year_start('now'::text::date) AND a.savedon <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table67)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table68.display_fdgl AS fdgl, 'muthoot_CCleadsattended_qc4xilh7in' AS "goal code", 'CC leads attended' AS "goal name", COALESCE(derived_table68.cc_count, 0::bigint) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(count(DISTINCT a.relatedboid),0) AS cc_count
+           FROM mfl_datalake_sor.crm_frontend_report a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.task_assigned_fdgl::text = b.fdgl::text
+     WHERE a.taskstatusname::text = 'Completed'::text AND a.taskcreateddate = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table68)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table69.display_fdgl AS fdgl, 'muthoot_CCleadsattended_qc4xilh7in' AS "goal code", 'CC leads attended' AS "goal name", COALESCE(derived_table69.cc_count, 0::bigint) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(count(DISTINCT a.relatedboid),0) AS cc_count
+           FROM mfl_datalake_sor.crm_frontend_report a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.task_assigned_fdgl::text = b.fdgl::text
+     WHERE a.taskstatusname::text = 'Completed'::text AND a.taskcreateddate >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table69)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table70.display_fdgl AS fdgl, 'muthoot_CCleadsattended_qc4xilh7in' AS "goal code", 'CC leads attended' AS "goal name", COALESCE(derived_table70.cc_count, 0::bigint) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(count(DISTINCT a.relatedboid),0) AS cc_count
+           FROM mfl_datalake_sor.crm_frontend_report a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.task_assigned_fdgl::text = b.fdgl::text
+     WHERE a.taskstatusname::text = 'Completed'::text AND a.taskcreateddate >= get_fiscal_year_start('now'::text::date) AND a.taskcreateddate <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table70)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table72.display_fdgl AS fdgl, 'muthoot_CRMlogin_vmocv5bv5' AS "goal code", 'CRM login' AS "goal name", COALESCE(derived_table72.crm_login, 0::bigint) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT a.display_fdgl, coalesce(count(DISTINCT a.userid),0) AS crm_login
+           FROM ((( SELECT b.usercode, a.userid, a.logindate
+                   FROM mfl_datalake_stg.crm_userslogonhistory a
+              LEFT JOIN mfl_datalake_stg.crm_users b ON a.userid::text = b.userid::text
+        UNION 
+                 SELECT crm_users.usercode, crm_users.userid, crm_users.lastlogindate AS logindate
+                   FROM mfl_datalake_stg.crm_users
+                  WHERE crm_users.lastlogindate IS NOT NULL) derived_table71
+      LEFT JOIN ( SELECT hrms_ps_master_employee_view.employeeno AS emp_no, hrms_ps_master_employee_view.designation AS emp_dsg, hrms_ps_master_employee_view."type" AS officetype, hrms_ps_master_employee_view."function", NULL::character varying AS dt_term, hrms_ps_master_employee_view.branchcode AS fdg
+                   FROM mfl_datalake_sor.hrms_ps_master_employee_view) z ON derived_table71.usercode::text = z.emp_no::text) z
+   RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+              FROM mfl_datalake_dim.master_branch_merger_mapping) y ON z.fdg::text = y.fdgl::text) a
+  WHERE a.logindate = ('now'::text::date - '1 day'::interval day)
+  GROUP BY a.display_fdgl) derived_table72)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table74.display_fdgl AS fdgl, 'muthoot_CRMlogin_vmocv5bv5' AS "goal code", 'CRM login' AS "goal name", COALESCE(derived_table74.crm_login, 0::bigint) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT y.display_fdgl,coalesce(count(DISTINCT Z.userid),0) AS crm_login
+           FROM (( SELECT b.usercode, a.userid, a.logindate
+                   FROM mfl_datalake_stg.crm_userslogonhistory a
+              LEFT JOIN mfl_datalake_stg.crm_users b ON a.userid::text = b.userid::text
+        UNION 
+                 SELECT crm_users.usercode, crm_users.userid, crm_users.lastlogindate AS logindate
+                   FROM mfl_datalake_stg.crm_users
+                  WHERE crm_users.lastlogindate IS NOT NULL) derived_table73
+      LEFT JOIN ( SELECT hrms_ps_master_employee_view.employeeno AS emp_no, hrms_ps_master_employee_view.designation AS emp_dsg, hrms_ps_master_employee_view."type" AS officetype, hrms_ps_master_employee_view."function", NULL::character varying AS dt_term, hrms_ps_master_employee_view.branchcode AS fdg
+                   FROM mfl_datalake_sor.hrms_ps_master_employee_view) z ON derived_table73.usercode::text = z.emp_no::text) z
+   RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+              FROM mfl_datalake_dim.master_branch_merger_mapping) y ON z.fdg::text = y.fdgl::text
+  WHERE z.logindate >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+  GROUP BY y.display_fdgl) derived_table74)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table76.display_fdgl AS fdgl, 'muthoot_CRMlogin_vmocv5bv5' AS "goal code", 'CRM login' AS "goal name", COALESCE(derived_table76.crm_login, 0::bigint) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT a.display_fdgl, coalesce(count(DISTINCT a.userid),0) AS crm_login
+           FROM ((( SELECT b.usercode, a.userid, a.logindate
+                   FROM mfl_datalake_stg.crm_userslogonhistory a
+              LEFT JOIN mfl_datalake_stg.crm_users b ON a.userid::text = b.userid::text
+        UNION 
+                 SELECT crm_users.usercode, crm_users.userid, crm_users.lastlogindate AS logindate
+                   FROM mfl_datalake_stg.crm_users
+                  WHERE crm_users.lastlogindate IS NOT NULL) derived_table75
+      LEFT JOIN ( SELECT hrms_ps_master_employee_view.employeeno AS emp_no, hrms_ps_master_employee_view.designation AS emp_dsg, hrms_ps_master_employee_view."type" AS officetype, hrms_ps_master_employee_view."function", NULL::character varying AS dt_term, hrms_ps_master_employee_view.branchcode AS fdg
+                   FROM mfl_datalake_sor.hrms_ps_master_employee_view) z ON derived_table75.usercode::text = z.emp_no::text) z
+   RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+              FROM mfl_datalake_dim.master_branch_merger_mapping) y ON z.fdg::text = y.fdgl::text) a
+  WHERE a.logindate >= get_fiscal_year_start('now'::text::date) AND a.logindate <= get_fiscal_year_end('now'::text::date)
+  GROUP BY a.display_fdgl) derived_table76)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table77.display_fdgl AS fdgl, 'muthoot_BandhanOpportunitiescreated_3ddlp9ic24' AS "goal code", 'Bandhan Opportunities created' AS "goal name", COALESCE(derived_table77.opp_created, 0::bigint) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(count(DISTINCT  a.loan_no),0) AS opp_created
+           FROM mfl_datalake_sor.crm_frontend_bandhan_conversion a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.fdgl::text = b.fdgl::text
+     WHERE (a.conversion_type::text = 'Opportunity'::text OR a.conversion_type::text = 'Task Completed'::text) AND (a.app_nm::text = 'Offline-GL'::text OR a.app_nm::text = 'CGL'::text OR a.app_nm::text = 'EGL'::text) AND a.loan_date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table77)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table78.display_fdgl AS fdgl, 'muthoot_BandhanOpportunitiescreated_3ddlp9ic24' AS "goal code", 'Bandhan Opportunities created' AS "goal name", COALESCE(derived_table78.opp_created, 0::bigint) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(count(DISTINCT  a.loan_no),0) AS opp_created
+           FROM mfl_datalake_sor.crm_frontend_bandhan_conversion a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.fdgl::text = b.fdgl::text
+     WHERE (a.conversion_type::text = 'Opportunity'::text OR a.conversion_type::text = 'Task Completed'::text) AND (a.app_nm::text = 'Offline-GL'::text OR a.app_nm::text = 'CGL'::text OR a.app_nm::text = 'EGL'::text) AND a.loan_date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY b.display_fdgl) derived_table78)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table79.display_fdgl AS fdgl, 'muthoot_BandhanOpportunitiescreated_3ddlp9ic24' AS "goal code", 'Bandhan Opportunities created' AS "goal name", COALESCE(derived_table79.opp_created, 0::bigint) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT b.display_fdgl, coalesce(count(DISTINCT  a.loan_no),0) AS opp_created
+           FROM mfl_datalake_sor.crm_frontend_bandhan_conversion a
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) b ON a.fdgl::text = b.fdgl::text
+     WHERE (a.conversion_type::text = 'Opportunity'::text OR a.conversion_type::text = 'Task Completed'::text) AND (a.app_nm::text = 'Offline-GL'::text OR a.app_nm::text = 'CGL'::text OR a.app_nm::text = 'EGL'::text) AND a.loan_date >= get_fiscal_year_start('now'::text::date) AND a.loan_date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY b.display_fdgl) derived_table79)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table81.display_fdgl AS fdgl, 'muthoot_MuthootOneappdownloads_072onxz7di' AS "goal code", 'Muthoot One app downloads' AS "goal name", COALESCE(derived_table81.value, 0::bigint) AS achievement, 'Daily' AS "frequency type", 'now'::text::date - '1 day'::interval day AS "goal start date", 'now'::text::date AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT DISTINCT a.display_fdgl, coalesce(count(a.ucic),0) AS value
+           FROM (( SELECT DISTINCT b.ucic, b.cust_brn_code, "substring"(mflone_app_download.created_date::text, 1, 10)::date AS created_date
+                   FROM mflone.mflone_app_download
+              JOIN ( SELECT derived_table80.ucic, derived_table80.cust_phone_no, derived_table80.cust_brn_code, derived_table80.row_no
+                           FROM ( SELECT customer_details.ucic, customer_details.cust_phone_no, customer_details.cust_brn_code, pg_catalog.row_number()
+                                  OVER( 
+                                  PARTITION BY customer_details.cust_phone_no
+                                  ORDER BY customer_details.cust_insert_time DESC) AS row_no
+                                   FROM mfl_datalake_sor.customer_details
+                                  WHERE customer_details.ucic IS NOT NULL) derived_table80
+                          WHERE derived_table80.row_no = 1) b ON mflone_app_download.customer_phone::text = b.cust_phone_no::text) z
+      LEFT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) master_branch_merger_mapping ON z.cust_brn_code::text = master_branch_merger_mapping.fdgl::text) a
+     WHERE a.created_date = ('now'::text::date - '1 day'::interval day)
+     GROUP BY a.display_fdgl) derived_table81)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table83.display_fdgl AS fdgl, 'muthoot_MuthootOneappdownloads_072onxz7di' AS "goal code", 'Muthoot One app downloads' AS "goal name", COALESCE(derived_table83.value, 0::bigint) AS achievement, 'Monthly' AS "frequency type", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) AS "goal start date", date_trunc('month'::text, 'now'::text::date - '1 day'::interval day) + '1 mon'::interval month AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT DISTINCT a.display_fdgl, coalesce(count(a.ucic),0) AS value
+           FROM (( SELECT DISTINCT b.ucic, b.cust_brn_code, "substring"(mflone_app_download.created_date::text, 1, 10)::date AS created_date
+                   FROM mflone.mflone_app_download
+              JOIN ( SELECT derived_table82.ucic, derived_table82.cust_phone_no, derived_table82.cust_brn_code, derived_table82.row_no
+                           FROM ( SELECT customer_details.ucic, customer_details.cust_phone_no, customer_details.cust_brn_code, pg_catalog.row_number()
+                                  OVER( 
+                                  PARTITION BY customer_details.cust_phone_no
+                                  ORDER BY customer_details.cust_insert_time DESC) AS row_no
+                                   FROM mfl_datalake_sor.customer_details
+                                  WHERE customer_details.ucic IS NOT NULL) derived_table82
+                          WHERE derived_table82.row_no = 1) b ON mflone_app_download.customer_phone::text = b.cust_phone_no::text) z
+      LEFT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) master_branch_merger_mapping ON z.cust_brn_code::text = master_branch_merger_mapping.fdgl::text) a
+     WHERE a.created_date >= date_trunc('month'::text, 'now'::text::date - '1 day'::interval day)
+     GROUP BY a.display_fdgl) derived_table83)
+UNION ALL 
+ SELECT 'now'::text::date AS "date upload", derived_table85.display_fdgl AS fdgl, 'muthoot_MuthootOneappdownloads_072onxz7di' AS "goal code", 'Muthoot One app downloads' AS "goal name", COALESCE(derived_table85.value, 0::bigint) AS achievement, 'Yearly' AS "frequency type", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN date_add('year'::text, -1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+            ELSE ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+        END AS "goal start date", 
+        CASE
+            WHEN "date_part"('month'::text, 'now'::text::date) <= 3 THEN ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone
+            ELSE date_add('year'::text, 1::bigint, ("date_part"('year'::text, 'now'::text::date)::text || '-04-01'::text)::date::timestamp without time zone)
+        END AS "goal end date", 'Number' AS "data type", 'Enabled' AS status
+   FROM ( SELECT DISTINCT a.display_fdgl, coalesce(count(a.ucic),0) AS value
+           FROM (( SELECT DISTINCT b.ucic, b.cust_brn_code, "substring"(mflone_app_download.created_date::text, 1, 10)::date AS created_date
+                   FROM mflone.mflone_app_download
+              JOIN ( SELECT derived_table84.ucic, derived_table84.cust_phone_no, derived_table84.cust_brn_code, derived_table84.row_no
+                           FROM ( SELECT customer_details.ucic, customer_details.cust_phone_no, customer_details.cust_brn_code, pg_catalog.row_number()
+                                  OVER( 
+                                  PARTITION BY customer_details.cust_phone_no
+                                  ORDER BY customer_details.cust_insert_time DESC) AS row_no
+                                   FROM mfl_datalake_sor.customer_details
+                                  WHERE customer_details.ucic IS NOT NULL) derived_table84
+                          WHERE derived_table84.row_no = 1) b ON mflone_app_download.customer_phone::text = b.cust_phone_no::text) z
+      RIGHT JOIN ( SELECT master_branch_merger_mapping.fdgl, master_branch_merger_mapping.display_fdgl
+                   FROM mfl_datalake_dim.master_branch_merger_mapping) master_branch_merger_mapping ON z.cust_brn_code::text = master_branch_merger_mapping.fdgl::text) a
+     WHERE a.created_date >= get_fiscal_year_start('now'::text::date) AND a.created_date <= get_fiscal_year_end('now'::text::date)
+     GROUP BY a.display_fdgl) derived_table85;
